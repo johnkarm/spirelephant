@@ -4,5 +4,26 @@
 EditorBuildSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 2
-  m_Scenes: []
+  m_Scenes:
+  - enabled: 0
+    path: 
+    guid: 00000000000000000000000000000000
+  - enabled: 1
+    path: Assets/Scenes/startScreen.unity
+    guid: abc7ee04b379829499de9d93d8b773db
+  - enabled: 1
+    path: Assets/Scenes/menuScreen.unity
+    guid: 22311e8ed61bb39449858873e6e1a6c4
+  - enabled: 1
+    path: Assets/Scenes/waterLevel.unity
+    guid: 0899e2f56b4c8c943a6775f4ca7e7173
+  - enabled: 1
+    path: Assets/Scenes/lavaLevel.unity
+    guid: 6e31ce9be64c2a7419a58075b54fe212
+  - enabled: 1
+    path: Assets/Scenes/fruitLevel.unity
+    guid: 7d289726766eebe45ab5de51ba2c5b14
+  - enabled: 1
+    path: Assets/Scenes/facts.unity
+    guid: d737b3feab92d71459c5a75223917c86
   m_configObjects: {}

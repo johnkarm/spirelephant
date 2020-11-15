@@ -1,8 +1,12 @@
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
+using UnityEngine;
+using UnityEngine.SceneManagement;
+using System;
+using System.Linq;
 
 public class PressureUpdater : MonoBehaviour
 {
@@ -10,17 +14,29 @@ public class PressureUpdater : MonoBehaviour
 	public float rotateSpeed = 20.0f;
     public float angleMax = 90.0f;
 	private Vector3 initialVector = Vector3.forward;
-	private bool wiggle = true;
+	//private bool wiggle = true;
 	private SpiroSim sim;
 	private int arrayCounter=0;
 	private int frameCounter=1;
 	private int lastFlow=0;
 	private int lastArrayCounter= 0;
-	// private bool resetBreathNeeded = true;
+	public bool startedBreath = false;
+	public bool failedBreath = false;
 	public int currentPressurePlus = 0;
+	private int timer=0;
+	private float startTimeofBreath;
+	private double variance;
+	private float lastPressure = 0;
 	 
 	private TextMeshProUGUI pressureText;
+	private TextMeshProUGUI BreathFeedback;
 	private TextMeshProUGUI[] allThings;
+	public List<int> breaths;
+	
+	
+	Animator anim;
+
+		
 	
 	//public Animator anim;
 
@@ -28,15 +44,44 @@ public class PressureUpdater : MonoBehaviour
     // Start is called before the first frame update
 	GameObject scale;
 	GameObject player;
+	GameObject WATER;
+	Water water;
+	GameObject failScreen;
+    GameObject breathFeedback;
+    GameObject retryLevel;
+	
+	
 
+	
     void Start()
     {
+		
+		Application.targetFrameRate = 60;
+		if(SceneManager.GetActiveScene().name=="waterLevel")
+		{
+			WATER = GameObject.Find("Water");
+			
+		}
+		if(SceneManager.GetActiveScene().name=="lavaLevel")
+		{
+			
+			WATER = GameObject.Find("waterParent");
+		}
+		if(SceneManager.GetActiveScene().name=="fruitLevel")
+		{
+			
+			WATER = GameObject.Find("ropeParent");
+		}
+		 
+        water = WATER.GetComponent<Water>();
+		breaths = new List<int>();
 		scale = GameObject.Find("Scale");
 		sim = gameObject.AddComponent<SpiroSim>() as SpiroSim;
+		sim.LoadEmptyBreath();
 
-		//player = GameObject.Find("Player");    
+		player = GameObject.Find("Player");    
 		
-		//anim = player.GetComponent<Animator>();
+		anim = player.GetComponent<Animator>();
 		
 		if(scale != null)
          {
@@ -50,10 +95,14 @@ public class PressureUpdater : MonoBehaviour
             if(value.name=="Pressure")
 			{
 				pressureText = value;
-				break;
 			}
-				
         }
+		failScreen = GameObject.Find("FailScreen");
+        failScreen.SetActiveRecursively(false);
+        // retryLevel = GameObject.Find("RetryLevel");
+        // retryLevel.SetActiveRecursively(false);
+        breathFeedback = GameObject.Find("BreathFeedback");
+        breathFeedback.SetActiveRecursively(false);
     }
 
 	void GetBreath() {
@@ -62,91 +111,189 @@ public class PressureUpdater : MonoBehaviour
 			Debug.Log("StartBestBreath");
 			sim.StartBestBreath();
 			arrayCounter = 0;
-			// resetBreathNeeded = false;
+			startedBreath = true;
+			frameCounter = 1;
+			startTimeofBreath = Time.time;
+			variance = GetVariance(sim._flowList);
+			// Debug.Log(GetVariance(sim._flowList));
 
 		} else if(Input.GetKeyDown(KeyCode.X)) {
 			Debug.Log("StartBetterBreath");
 			sim.StartBetterBreath();
 			arrayCounter = 0;
-			
-			// resetBreathNeeded = false;
+			startedBreath = true;
+			frameCounter = 1;
+			startTimeofBreath = Time.time;
+			Debug.Log(GetVariance(sim._flowList));
+			variance = GetVariance(sim._flowList);
 
 		} else if(Input.GetKeyDown(KeyCode.C)) {
 			Debug.Log("StartGoodBreath");
 			sim.StartGoodBreath();
 			arrayCounter = 0;
-			// resetBreathNeeded = false;
+			startedBreath = true;
+			frameCounter = 1;
+			startTimeofBreath = Time.time;
+			Debug.Log(GetVariance(sim._flowList));
+			variance = GetVariance(sim._flowList);
+
 
 		} else if(Input.GetKeyDown(KeyCode.V)) {
 			Debug.Log("StartPoorBreath");
 			sim.StartPoorBreath();
 			arrayCounter = 0;
-			// resetBreathNeeded = false;
+			startedBreath = true;
+			frameCounter = 1;
+			startTimeofBreath = Time.time;
+			variance = GetVariance(sim._flowList);
+
 		
 		} else if(Input.GetKeyDown(KeyCode.B)) {
 			Debug.Log("StartPoorerBreath");
 			sim.StartPoorerBreath();
 			arrayCounter = 0;
-			// resetBreathNeeded = false;
+			startedBreath = true;
+			frameCounter = 1;
+			startTimeofBreath = Time.time;
+			variance = GetVariance(sim._flowList);
+
 		
 		} else if(Input.GetKeyDown(KeyCode.N)) {
 			Debug.Log("StartBadBreath");
 			sim.StartBadBreath();
 			arrayCounter = 0;
-			// resetBreathNeeded = false;
+			startedBreath = true;
+			frameCounter = 1;
+			startTimeofBreath = Time.time;
+			variance = GetVariance(sim._flowList);
 
 		}
 		else if(Input.GetKeyDown(KeyCode.M)) {
 			Debug.Log("StartVariableBreath");
 			sim.StartVariableLengthTest(10);
 			arrayCounter = 0;
-			// resetBreathNeeded = false;
+			startedBreath = true;
+			frameCounter = 1;
+			startTimeofBreath = Time.time;
+			variance = GetVariance(sim._flowList);
+
 		
 		}
+		else if(Input.GetKeyDown(KeyCode.P)) {
+			Debug.Log("Stop Breath");
+			sim.LoadEmptyBreath();
+			arrayCounter = 0;
+			startedBreath = false;
+			lastFlow = 4;
+			currentPressurePlus = 0;
+			startTimeofBreath = Time.time;
 		
-
+		}
 	}
 
-// TODO, set the arrays to 0
-	// void failedBreath() {
-	// 	return;
-	// }
+
+
+	public double GetVariance(int[] values)
+	{
+		double avg = values.Average();
+		double sum = values.Sum(v => (v - avg) * (v-avg));
+		double denominator = values.Length;
+		return sum / denominator;
+	}
 
 	void ProcessBreath() {
-		// Debug.Log("Process!");
-		// Debug.Log(arrayCounter);
-		// Debug.Log(Time.time);
-		// Debug.Log(frameCounter);
-		frameCounter++;
-		if(frameCounter % 30 == 0 && arrayCounter < SpiroSim.NumDataPoints-1) {
-			arrayCounter++;
+
+		if (frameCounter > 1000) {
+			failedBreath = true;
+			Time.timeScale = 0;
+			Debug.Log("FAILED BREATH, Try again :)");
+			currentPressurePlus = 0;
+			failScreen.SetActiveRecursively(true);
+            // retryLevel.SetActiveRecursively(true);
+
+
+		}
+
+		if (startedBreath && !failedBreath && !water.LevelWon) {
+			// Debug.Log(frameCounter)
+			frameCounter++;
+			if(frameCounter % 30 == 0 && arrayCounter < SpiroSim.NumDataPoints-1) {
+				arrayCounter++;
+			}
 			
+			// Debug.Log(frameCounter);
+			// Debug.Log(Time.time - startTimeofBreath);
+			
+			
+			breaths.Add((int)(sim._flowList[arrayCounter])); 
+			if(sim._flowList[arrayCounter] == 1) {
+				pressure += 3;
+				currentPressurePlus = 3;
+				breathFeedback.SetActiveRecursively(false);
+				//BreathFeedback.SetText("Feedback: Perfect; 1");
+			} else if (sim._flowList[arrayCounter] == 3) {
+				pressure += 1;
+				currentPressurePlus = 1;
+				breathFeedback.SetActiveRecursively(true);
+			} else if (sim._flowList[arrayCounter] == 2) {
+				pressure += 2;
+				currentPressurePlus = 2;
+				breathFeedback.SetActiveRecursively(true);
+			} else {
+				pressure += 0;
+				currentPressurePlus = 0;
+				breathFeedback.SetActiveRecursively(true);
+				//BreathFeedback.SetText("Feedback: Aim for a slow steady breathe; 0");
+			}
+
+
+			if(!water.LevelWon)
+			{
+				if (sim._flowList[arrayCounter] != 0){
+					if(SceneManager.GetActiveScene().name=="fruitLevel")
+					{
+						anim.SetBool("fruitEIsPressed",true);
+						
+					}
+					else
+					{
+						anim.SetBool("eIsPressed",true);
+						
+					}
+				}
+				else
+				{
+					if(SceneManager.GetActiveScene().name=="fruitLevel")
+					{
+						anim.SetBool("fruitEIsPressed",false);
+						
+					}
+					else
+					{
+						anim.SetBool("eIsPressed",false);
+						
+					}
+				
+				}
+			}
+			else
+			{
+				if(SceneManager.GetActiveScene().name=="fruitLevel")
+				{
+					anim.SetBool("fruitEIsPressed",false);
+						
+				}
+				else
+				{
+					anim.SetBool("eIsPressed",false);
+						
+				}
+				
+			}
+			
+			lastFlow = sim._flowList[arrayCounter];
+			lastArrayCounter = arrayCounter;
 		}
-		// TODO implement functionality for failed breath
-		if (lastFlow == 0 && lastArrayCounter != arrayCounter && sim._flowList[arrayCounter] == 0) {
-			// END BREATHE
-			// resetBreathNeeded = true;
-			// failedBreath();
-			// pressure = 0;
-			// return;
-
-		}
-		if(sim._flowList[arrayCounter] == 1) {
-			pressure += 3;
-			currentPressurePlus = 3;
-		} else if (sim._flowList[arrayCounter] == 3) {
-			pressure += 1;
-			currentPressurePlus = 1;
-		} else {
-			pressure += sim._flowList[arrayCounter];
-			currentPressurePlus = sim._flowList[arrayCounter];
-		}
-		lastFlow = sim._flowList[arrayCounter];
-		lastArrayCounter = arrayCounter;
-
-		// TODO need to account for fluctuations in breath flow and then grade breathes
-
-
 		
 
 
@@ -158,28 +305,21 @@ public class PressureUpdater : MonoBehaviour
 		// Trigger for once you passed the level, ref line 34 Water.cs
 		if(Time.timeScale != 0)
 		{
+			if(water.LevelWon) {
+				breathFeedback.SetActiveRecursively(false);
+				// frameCounter = 0
+			}
 			GetBreath();
 
+			
+			ProcessBreath();
 
-			// Debug.Log("Pressure: "+pressure);
-			// Think of E as our trigger
-			if (Input.GetKey(KeyCode.E)){
-				
-				// TODO: Implement the resetBreath feature
-				// if(resetBreathNeeded){
-				// 	Debug.Log("Reset your breathe!");
-				// } else {
-				// 	ProcessBreath();
-				// }
-				ProcessBreath();
-				
-				
-			}
+
+
 			if(pressure>0)
 			{	
-				// 1*  = pressure in 
-				pressure-=Mathf.Max(currentPressurePlus*(Mathf.Pow(pressure,(float)3.5)/Mathf.Pow(600,(float)3.5)),(float).5);
-				// Debug.Log(pressure);
+				
+				pressure-=Mathf.Max(currentPressurePlus*(Mathf.Pow(pressure,(float)3.5)/Mathf.Pow(500,(float)3.5)),(float).5);
 			}
 			if(pressure<0)
 			{
@@ -194,33 +334,47 @@ public class PressureUpdater : MonoBehaviour
 			
 			float rotateDegrees = 0f;
 				
-			if (Input.GetKey(KeyCode.E)) 
-			{
-				rotateDegrees -= currentPressurePlus;
-			}
+			// Hmmm
+			// rotateDegrees += currentPressurePlus;
 			
-			if(pressure>0)
-			{
-				rotateDegrees += Mathf.Max(currentPressurePlus*(Mathf.Pow(pressure,(float)3.5)/Mathf.Pow(600,(float)3.5)),(float).5);
-			}
-				
-			Vector3 currentVector = transform.position - scale.transform.position;
-			currentVector.y = 0;
-			float angleBetween = Vector3.Angle(initialVector, currentVector) * (Vector3.Cross(initialVector, currentVector).y > 0 ? 1 : -1);            
-			float newAngle = Mathf.Clamp(angleBetween + rotateDegrees, -angleMax, angleMax);
-			rotateDegrees = newAngle - angleBetween;
 			
-			if(pressure<=590)
+			// if(pressure>0)
+			// {
+			// 	rotateDegrees -= Mathf.Max(currentPressurePlus*(Mathf.Pow(pressure,(float)3.5)/Mathf.Pow(100,(float)3.5)),(float).5);
+			// }
+
+
+			// I couldn't figure out how this works so I just made it simpler
+			// Vector3 currentVector = transform.position - scale.transform.position;
+			// currentVector.y = 0;
+			// Debug.Log(currentVector);
+			// float angleBetween = Vector3.Angle(initialVector, currentVector) * (Vector3.Cross(initialVector, currentVector).y > 0 ? 1 : -1);            
+			// float newAngle = Mathf.Clamp(angleBetween + rotateDegrees, -angleMax, angleMax);
+			// rotateDegrees = (newAngle - angleBetween)/160;
+
+			//rotate degrees should equal change in pressure.
+			rotateDegrees = currentPressurePlus - Mathf.Max(currentPressurePlus*(Mathf.Pow(pressure,(float)3.5)/Mathf.Pow(500,(float)3.5)),(float).5);
+			// Debug.Log(rotateDegrees);
+			// Debug.Log(pressure - lastPressure);
+			// Debug.Log(pressure);
+			
+
+			//1000 pressure = 180 degrees. 
+			// every 1 pressure additional = 0.18 degrees. Because we are adding pressure exponentially, it should rotate in exponential form
+			if(pressure<=495 && !water.LevelWon)
 			{
-				scale.transform.RotateAround(scale.transform.position, Vector3.forward, rotateDegrees/(float)3.25);
+				// scale.transform.RotateAround(scale.transform.position, Vector3.forward, rotateDegrees/(float)3.25);
+				scale.transform.RotateAround(scale.transform.position, Vector3.forward, -rotateDegrees*0.36f);
 			}
-			if(pressure==0)
+			if(pressure<=0)
 			{
 				scale.gameObject.transform.localRotation = new Quaternion((float)0, (float)0, (float)0, (float)0);
 			}
 		
 		
 		}
+
+		lastPressure = pressure;
 			
 		
 		

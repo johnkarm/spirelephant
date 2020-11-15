@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections;
 using UnityEngine;
 
@@ -20,15 +20,22 @@ public class SpiroSim : MonoBehaviour
     /// from a Spirometer device every 0.5 seconds.
     /// </summary>
 
+    public void LoadEmptyBreath()
+    {
+        // Breath is poor because they  have a large gap in the center and ended test early. 
+        _volList = new int[] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+        _flowList = new int[] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+        StartChallenge1();
+    }
 
     // 1) 10 second breath challenges (flow level and number of flow drops determine quality)
     public void StartBadBreath()
     {
-        StartVariableLengthTest(10);
-        return;
+        // StartVariableLengthTest(10);
+        // return;
         // Breath is bad because flow drops to zero several times. This could lead to hyperventilation 
         _volList = new int[] { 0, 1, 2, 3, 4, 6, 6, 5, 5, 7, 9, 8, 7, 7, 9, 10, 9, 9, 9, 10, 10 };
-        _flowList = new int[] { 0, 2, 2, 2, 3, 3, 0, 0, 3, 3, 3, 0, 0, 3, 3, 2, 0, 0, 3, 2, 0 };
+        _flowList = new int[] { 0, 2, 2, 2, 3, 3, 0, 0, 3, 3, 3, 0, 0, 3, 3, 2, 0, 0, 3, 2, 0 }; //variance = 1.7596371882086
         StartChallenge1();
     }
 
@@ -36,7 +43,7 @@ public class SpiroSim : MonoBehaviour
     {
         // Breath is poor because they  have a large gap in the center and ended test early. 
         _volList = new int[] { 0, 3, 4, 5, 6, 7, 9, 10, 9, 9, 8, 7, 6, 6, 8, 9, 10, 10, 10, 10, 9};
-        _flowList = new int[] { 0, 3, 2, 2, 2, 3, 3, 2, 0, 0, 0, 0, 0, 3, 3, 3, 2, 2, 2, 0, 0 };
+        _flowList = new int[] { 0, 3, 2, 2, 2, 3, 3, 2, 0, 0, 0, 0, 0, 3, 3, 3, 2, 2, 2, 0, 0 }; //variance = 1.5827664399093
         StartChallenge1();
     }
 
@@ -44,7 +51,7 @@ public class SpiroSim : MonoBehaviour
     {
         // Breath is poor. It looks as if the patient had too high of a flow and caused the flow to read 0.
         _volList = new int[] { 0, 2, 3, 4, 6, 7, 9, 8, 7, 6, 6, 8, 9, 9, 10, 10, 10, 10, 10, 10, 10 };
-        _flowList = new int[] { 0, 3, 3, 3, 3, 3, 0, 0, 0, 0, 3, 2, 2, 2, 2, 3, 2, 2, 3, 2, 3 };
+        _flowList = new int[] { 0, 3, 3, 3, 3, 3, 0, 0, 0, 0, 3, 2, 2, 2, 2, 3, 2, 2, 3, 2, 3 }; // variance = 1.3786848072562
         StartChallenge1();
     }
 
@@ -53,7 +60,7 @@ public class SpiroSim : MonoBehaviour
         // Breath levels are mostly 3s which is within GOOD range. It looks like the breath couldn't be
         // sustained and they needed to breath in to finish test.
         _volList = new int[] { 0, 2, 3, 4, 5, 6, 8, 9, 10, 10, 9, 8, 9, 10, 10, 10, 10, 10, 10, 10, 10};
-        _flowList = new int[] { 0, 3, 2, 2, 2, 3, 3, 2, 2, 0, 0, 0, 3, 3, 3, 2, 3, 3, 3, 3, 3 };
+        _flowList = new int[] { 0, 3, 2, 2, 2, 3, 3, 2, 2, 0, 0, 0, 3, 3, 3, 2, 3, 3, 3, 3, 3 }; //variance = 1.265306122449
         StartChallenge1();
     }
 
@@ -62,7 +69,7 @@ public class SpiroSim : MonoBehaviour
         // Breath levels are mostly 2/3s which indicates great flow. It looks like they needed to take
         // a breath intake to finish test
         _volList = new int[] { 0, 2, 3, 4, 5, 5, 6, 7, 8, 9, 9, 10, 9, 8, 8, 9, 10, 10, 10, 10, 10 };
-        _flowList = new int[] { 0, 2, 1, 2, 2, 2, 2, 2, 2, 2, 2, 0, 0, 0, 2, 2, 2, 2, 2, 1, 2 };
+        _flowList = new int[] { 0, 2, 1, 2, 2, 2, 2, 2, 2, 2, 2, 0, 0, 0, 2, 2, 2, 2, 2, 1, 2 }; //variance = 0.63038548752834
         StartChallenge1();
     }
 
@@ -171,7 +178,7 @@ public class SpiroSim : MonoBehaviour
     {
         // Call Game Function Here
         // Game.sendInput(vol, flow)
-        Debug.Log("Vol " + (dataPos + 1) + " Received: " + vol);
-        Debug.Log("Flow " + (dataPos + 1) + " Received: " + flow);
+        // Debug.Log("Vol " + (dataPos + 1) + " Received: " + vol);
+        // Debug.Log("Flow " + (dataPos + 1) + " Received: " + flow);
     }
 }
