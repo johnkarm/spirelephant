@@ -363,7 +363,7 @@ GameObject:
   - component: {fileID: 410142478}
   - component: {fileID: 410142479}
   m_Layer: 0
-  m_Name: Settings
+  m_Name: Credits
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1240,6 +1240,8 @@ MonoBehaviour:
   pressure: 0
   rotateSpeed: 20
   angleMax: 30
+  startedBreath: 0
+  failedBreath: 0
   currentPressurePlus: 0
   breaths: 
 --- !u!1 &1570264691
@@ -1271,6 +1273,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 666c9aa519466984aa591b3a11de08dc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  costume2: {fileID: 0}
+  spriteRenderer: {fileID: 0}
 --- !u!4 &1570264696
 Transform:
   m_ObjectHideFlags: 0

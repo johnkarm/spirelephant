@@ -3,7 +3,10 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using System.IO;
+using System;
 using System.Runtime.Serialization.Formatters.Binary;
+
+
  
 
 public class makeBigger : MonoBehaviour
@@ -46,17 +49,21 @@ public class makeBigger : MonoBehaviour
 			}
 		}
 		
-		if((name=="save")||(name=="elephantopedia"))
+		if((name=="save")||(name=="elephantopedia")||((name=="shop")&&(spriteRenderer.material.GetFloat("_GrayscaleAmount")!=1)))
 		{
 			transform.localScale=new Vector3(.35f,.35f,0f);
 			
+		}
+		else if (name=="settings")
+		{
+			transform.localScale=new Vector3(.25f,.25f,0f);
 		}
 		else if (name=="pointer")
 		{
 			transform.localScale=new Vector3(2f,2f,0f);
 			
 		}
-		else if (name!="ContGame")
+		else if ((name!="ContGame")&&(name!="shop"))
 		{
 			transform.localScale=new Vector3(1.5f,1.5f,0f);
 			
@@ -66,10 +73,14 @@ public class makeBigger : MonoBehaviour
 
     void OnMouseExit()
     {
-		if((name=="save")||(name=="elephantopedia"))
+		if((name=="save")||(name=="elephantopedia")||(name=="shop"))
 		{
 			transform.localScale=new Vector3(.25f,.25f,0f);
 			
+		}
+		else if (name=="settings")
+		{
+			transform.localScale=new Vector3(.15f,.15f,0f);
 		}
 		else if (name=="pointer")
 		{
@@ -87,6 +98,20 @@ public class makeBigger : MonoBehaviour
     {
         //If your mouse hovers over the GameObject with the script attached, output this message
         //SceneManager.LoadScene("waterLevel");
+		if(name=="shop")
+		{
+			
+		}
+		if(name=="settings" || name =="Settings")
+		{
+			Debug.Log("is it working?");
+			SceneManager.LoadScene("settingsPage");
+		}
+		if(name=="Credits")
+		{
+			Debug.Log("is it working?");
+			SceneManager.LoadScene("credits");
+		}
 		if (name=="pointer")
 		{
 			SceneManager.LoadScene("menuScreen");
@@ -100,7 +125,26 @@ public class makeBigger : MonoBehaviour
 		
 		if(name=="NewGame")
 		{
-			SceneManager.LoadScene("menuScreen");
+			string path = Application.persistentDataPath+"/player.love";
+			try
+			{
+				File.Delete(path);
+			}
+			catch (Exception ex)
+			{
+				Debug.LogException(ex);
+			}
+			PlayerScript.coins = 0;
+			PlayerScript.levelOne=true;
+			PlayerScript.levelTwo=false;
+			PlayerScript.levelThree=false;
+			PlayerScript.costume=false;
+			PlayerScript.levelOneFacts=0;
+			PlayerScript.levelTwoFacts=0;
+			PlayerScript.levelThreeFacts=0;
+			PlayerScript.facts = new string[9];
+			PlayerScript.numFacts=0;
+			SceneManager.LoadScene("storyPage");
 			
 		}
 		if(name=="startLevel")

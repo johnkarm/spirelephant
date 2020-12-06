@@ -18,7 +18,7 @@ public class CoinsUpdater : MonoBehaviour
             if(value.name=="Coins")
 			{
 				coinText = value;
-				coinText.SetText("Coins: "+PlayerScript.coins);
+				coinText.SetText((PlayerScript.coins).ToString());
 				//Debug.Log("Found you!");
 				break;
 			}
@@ -30,7 +30,7 @@ public class CoinsUpdater : MonoBehaviour
     void Update()
     {
 		//Player.coins+=1;
-		coinText.SetText("Coins: "+PlayerScript.coins);
+		coinText.SetText((PlayerScript.coins).ToString());
 		
 		
 		

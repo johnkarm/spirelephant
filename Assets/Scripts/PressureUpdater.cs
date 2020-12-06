@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
-using UnityEngine;
 using UnityEngine.SceneManagement;
 using System;
 using System.Linq;
@@ -23,7 +22,6 @@ public class PressureUpdater : MonoBehaviour
 	public bool startedBreath = false;
 	public bool failedBreath = false;
 	public int currentPressurePlus = 0;
-	private int timer=0;
 	private float startTimeofBreath;
 	private double variance;
 	private float lastPressure = 0;

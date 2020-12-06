@@ -10,17 +10,40 @@ public class levelGrayscale : MonoBehaviour
 	GameObject Player;
 	PlayerScript playerScript;
 	private SpriteRenderer spriteRenderer;
+
+// Pause
+	public Animator animator;
+
 	// Start is called before the first frame update
 	void Start()
 	{
         Player = GameObject.Find("Player"); 
         playerScript = Player.GetComponent<PlayerScript>();
+		animator= GetComponent<Animator>();
 		spriteRenderer=GetComponent<SpriteRenderer>();
 	}
 
 	// Update is called once per frame
 	void Update()
 	{
+		
+		if(name=="shop")
+		{
+			//If we don't have the costume
+			if(!PlayerScript.costume)
+			{
+				spriteRenderer.material.SetFloat("_GrayscaleAmount",0);
+				animator.speed = 1f;
+
+
+			}
+			else
+			{
+				spriteRenderer.material.SetFloat("_GrayscaleAmount",1);
+				animator.speed = 0f;
+			}
+			
+		}	
 		
 		if(name=="lakeLevel")
 		{

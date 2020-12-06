@@ -13,21 +13,63 @@ public class Water : MonoBehaviour
 	private TextMeshProUGUI newFact;
 	private TextMeshProUGUI[] allThings;
 	
+	string[] factsOne=new string[] {"Baby rabbits are called ‘kittens’!","A rabbit’s teeth never stop growing!","Mr.Whiskers' favourite food is caramel carrots!","All Out of Facts!"};
+	string[] factsTwo=new string[] {"Above ground, it's called lava. Below ground, it's called magma!","Lions are the only cats that live in groups","Roary is afraid of mice. He's a real scaredy cat!","All Out of Facts!"};
+	string[] factsThree=new string[] {"Bats can find their food in total darkness!","Apples float in water!","Elizabeth's secret ingredient for her fruit bat pie is a pinch of cinnamon and a dash of love!","All Out of Facts!"};
+	
 	GameObject Pressure;
 	GameObject winScreen;
+	GameObject nextLevel;
 	GameObject mapButton;
 	GameObject textCanvas;
+	GameObject ropeParent;
 	PressureUpdater pressureSript;
+	finishHop finishhop;
 	Animator anim;
 	GameObject player; 
 	GameObject apple; 
+	GameObject animalFriend; 
+	GameObject LavaRiver; 
 	public bool LevelWon=false;
+	public SpriteRenderer spriteRenderer;
+	public Sprite LavaRiver2;
+	GameObject theCostume;
+	public Sprite costume1;
+	public SpriteRenderer spriteRenderer2;
 	
     // Start is called before the first frame update
     void Start()
     {
+		theCostume = GameObject.Find("costume"); 
+		if(theCostume)
+		{
+			spriteRenderer2 = theCostume.GetComponent<SpriteRenderer>(); 
+		}  
 
-		player = GameObject.Find("Player");    
+		player = GameObject.Find("Player"); 
+		
+		
+		if(SceneManager.GetActiveScene().name=="waterLevel")
+		{
+			animalFriend = GameObject.Find("Whiskers");  
+			finishhop = animalFriend.GetComponent<finishHop>(); 
+		}
+		
+		if(SceneManager.GetActiveScene().name=="lavaLevel")
+		{
+			animalFriend = GameObject.Find("Roary");  
+			finishhop = animalFriend.GetComponent<finishHop>(); 
+			LavaRiver = GameObject.Find("LavaRiver"); 
+			spriteRenderer = LavaRiver.GetComponent<SpriteRenderer>(); 
+		}
+
+		if (SceneManager.GetActiveScene().name=="fruitLevel")
+		{
+			animalFriend = GameObject.Find("appleParent");  
+			finishhop = animalFriend.GetComponent<finishHop>(); 
+			
+			ropeParent = GameObject.Find("ropeParent");  
+		}
 		apple = GameObject.Find("apple");    
 		
 		anim = player.GetComponent<Animator>();		
@@ -59,8 +101,11 @@ public class Water : MonoBehaviour
         Pressure = GameObject.Find("Pressure"); 
         pressureSript = Pressure.GetComponent<PressureUpdater>();
 		
+		
 		winScreen = GameObject.Find("WinScreen");  
 		winScreen.SetActiveRecursively(false);  
+		nextLevel = GameObject.Find("NextLevel");
+		nextLevel.SetActiveRecursively(false);
 		mapButton = GameObject.Find("goToMap");  
 		mapButton.SetActiveRecursively(false);  
         textCanvas = GameObject.Find("textCanvas"); 
@@ -108,6 +153,7 @@ public class Water : MonoBehaviour
 				{
 					if(!LevelWon)
 					{			
+						theCostume.SetActiveRecursively(false);
 						winLevel(2);
 					}	
 				}
@@ -116,7 +162,7 @@ public class Water : MonoBehaviour
 			else if (name=="ropeParent")
 			{
 				
-				if(transform.localScale.y<1.5 && !pressureSript.failedBreath)
+				if(transform.localScale.y<1.5 && !pressureSript.failedBreath&&!LevelWon)
 				{
 					float val = (float)(Mathf.Max(pressureSript.currentPressurePlus*(Mathf.Pow(pressureSript.pressure,(float)3.5)/Mathf.Pow(500,(float)3.5)),(float).5));
 					
@@ -163,25 +209,60 @@ public class Water : MonoBehaviour
 		
 		if(level==1)
 		{
+			finishhop.finish=true;
 			PlayerScript.levelTwo=true;
-			StartCoroutine(delayEnd());
-			newFact.SetText("Baby rabbits are called ‘kittens’!");
+			anim.SetBool("eIsPressed",false);
+			StartCoroutine(delayEnd(8));
+			newFact.SetText(factsOne[PlayerScript.levelOneFacts]);
+			if(PlayerScript.numFacts<9&&PlayerScript.levelOneFacts<3)
+			{
+				PlayerScript.facts[PlayerScript.numFacts]=factsOne[PlayerScript.levelOneFacts];
+				PlayerScript.levelOneFacts=PlayerScript.levelOneFacts+1;
+				PlayerScript.numFacts=PlayerScript.numFacts+1;				
+			}
+
 		}
 		if(level==2)
 		{
 			PlayerScript.levelThree=true;
-			
 			anim.SetBool("eIsPressed",false);
-			anim.SetBool("lavaEIsPressed",true);
-			StartCoroutine(delayEnd(anim.GetCurrentAnimatorStateInfo(0).length*3));
+			if(PlayerScript.costume)
+			{	
+				anim.SetBool("costumeLavaEIsPressed",true);
+			}
+			else
+			{
+				anim.SetBool("lavaEIsPressed",true);	
+			}
+			StartCoroutine(delayEnd(anim.GetCurrentAnimatorStateInfo(0).length*9));
+			StartCoroutine(delayEndTWO(anim.GetCurrentAnimatorStateInfo(0).length*3));
 			player.transform.localScale = new Vector3(-1*player.transform.localScale.x, player.transform.localScale.y, player.transform.localScale.z);
 			player.transform.position = new Vector3(3.42f, player.transform.position.y, player.transform.position.z);
-			newFact.SetText("Above ground, it's called lava. Below ground, it's called magma!");
+			newFact.SetText(factsTwo[PlayerScript.levelTwoFacts]);
+			if(PlayerScript.numFacts<9&&PlayerScript.levelTwoFacts<3)
+			{
+				PlayerScript.facts[PlayerScript.numFacts]=factsTwo[PlayerScript.levelTwoFacts];
+				PlayerScript.levelTwoFacts=PlayerScript.levelTwoFacts+1;
+				PlayerScript.numFacts=PlayerScript.numFacts+1;
+			}
 		}
 		if(level==3)
 		{
-			StartCoroutine(delayEnd());
-			newFact.SetText("Elizabeth's secret ingredient for her fruit bat pie is a pinch of cinnamon and a dash of love!");
+			anim.SetBool("fruitEIsPressed",false);
+			spriteRenderer2.sprite=costume1;
+			transform.localScale = new Vector3(0, 0, 0);
+			
+			finishhop.finish=true;
+			//ropeParent
+			StartCoroutine(delayEnd(2));
+			newFact.SetText(factsThree[PlayerScript.levelThreeFacts]);		
+			if(PlayerScript.numFacts<9&&PlayerScript.levelThreeFacts<3)
+			{
+				PlayerScript.facts[PlayerScript.numFacts]=factsThree[PlayerScript.levelThreeFacts];
+				PlayerScript.levelThreeFacts=PlayerScript.levelThreeFacts+1;
+				PlayerScript.numFacts=PlayerScript.numFacts+1;
+			}
+			
 			//PlayerScript.levelTwo=true;
 		}
 
@@ -194,8 +275,10 @@ public class Water : MonoBehaviour
 	{
 		yield return new WaitForSeconds(_delay);
 		
+		
 		Time.timeScale = 0;
 		winScreen.SetActiveRecursively(true);
+		nextLevel.SetActiveRecursively(true);
 		mapButton.SetActiveRecursively(true);
 		textCanvas.SetActiveRecursively(true);
 		
@@ -207,6 +290,16 @@ public class Water : MonoBehaviour
 		aveBreath.SetText((sum/pressureSript.breaths.Count).ToString("N2"));
 		idealBreath.SetText("1");
 		coins.SetText(newCoins.ToString("N0"));
+					
+		
+	}	
+	
+	IEnumerator delayEndTWO(float _delay=0)
+	{
+		yield return new WaitForSeconds(_delay);
+		spriteRenderer.sprite=LavaRiver2;
+		finishhop.finish=true;
+
 					
 		
 	}

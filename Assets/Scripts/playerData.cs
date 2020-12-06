@@ -9,6 +9,12 @@ public class playerData
 	public bool levelOne;
 	public bool levelTwo;
 	public bool levelThree;
+	public bool costume;
+	public string[] facts;
+	public int numFacts;
+	public int levelOneFacts;
+	public int levelTwoFacts;
+	public int levelThreeFacts;
 	
 	public playerData(PlayerScript player)
 	{
@@ -16,6 +22,12 @@ public class playerData
 		levelOne=PlayerScript.levelOne;
 		levelTwo=PlayerScript.levelTwo;
 		levelThree=PlayerScript.levelThree;
+		facts=PlayerScript.facts;
+		costume=PlayerScript.costume;
+		numFacts=PlayerScript.numFacts;
+		levelOneFacts=PlayerScript.levelOneFacts;
+		levelTwoFacts=PlayerScript.levelTwoFacts;
+		levelThreeFacts=PlayerScript.levelThreeFacts;
 		
 	}
 }
