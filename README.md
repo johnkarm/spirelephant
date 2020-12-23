@@ -1,4 +1,4 @@
-# spirelephant
+# Spirelephant
 This game was developed in EECS 495 by John Banna, Sam Ajami, Anjali Vyas, and Sarah Kunkel, with the help of Dr. Chesney and GSI David Nie.
 
 **Purpose of Spirelephant** </br>
