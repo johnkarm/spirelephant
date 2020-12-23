@@ -7,3 +7,8 @@ After lung surgery or conditions like Pneumonia, your lung capacity can drop due
 **What is Spirelephant?** </br>
 The Spirelephant game encourages young children to use their incentive spirometers more correctly and more often. Whenever the children breathe in correctly Elly the elephant will perform tasks such as sucking in water from a river or fruit from trees to help her animal friends. They will be rewarded with fruit points and fun facts and will also be able to "buy" a Wolverine costume.
 
+**Gameplay Images** </br>
+![](images/map.png)
+![](images/levelstart.png)
+![](images/level.png)
+![](images/levelpass.png)
